@@ -234,7 +234,7 @@ Check if the **Slack MCP** is available in the current environment:
 ```json
 {
   "channel": "#parkiwi",
-  "text": "🚀 New [Flavor] build released: [newVersionName] ([newVersionCode])",
+  "text": "🚀 New [Flavor] Build Released!\n\nVersion: [newVersionName] ([newVersionCode])\nAPK: [apk_filename]\nDownload: <[Google Drive shareable link]|[apk_filename]>",
   "blocks": [
     {
       "type": "header",
@@ -246,39 +246,9 @@ Check if the **Slack MCP** is available in the current environment:
     },
     {
       "type": "section",
-      "fields": [
-        {
-          "type": "mrkdwn",
-          "text": "*Flavor:*\n`[Flavor]`"
-        },
-        {
-          "type": "mrkdwn",
-          "text": "*Version:*\n*[newVersionName]* (Build `[newVersionCode]`)"
-        }
-      ]
-    },
-    {
-      "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "*📦 Package:*\n`[apk_filename]`"
-      },
-      "accessory": {
-        "type": "button",
-        "text": {
-          "type": "plain_text",
-          "text": "📥 Download APK",
-          "emoji": true
-        },
-        "url": "[Google Drive shareable link]",
-        "action_id": "download_apk_btn"
-      }
-    },
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": "*🔗 Drive Link (copy & share):*\n```[Google Drive shareable link]```"
+        "text": "*Version:* [newVersionName] ([newVersionCode])\n*APK:* [apk_filename]\n*Download:* <[Google Drive shareable link]|[apk_filename]>"
       }
     },
     {
@@ -288,7 +258,7 @@ Check if the **Slack MCP** is available in the current environment:
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "*📝 What's New:*\n[Plain-English bullet points from Step 6 - NO version bump commits]"
+        "text": "*What's new:*\n[Plain-English bullet points from Step 6 - NO version bump commits]"
       }
     },
     {
@@ -299,7 +269,7 @@ Check if the **Slack MCP** is available in the current environment:
       "elements": [
         {
           "type": "mrkdwn",
-          "text": "🤖 _Deployed by AI Agent_ • [Date or ISO timestamp]"
+          "text": "🤖 _Build deployed by AI agent • [Date or ISO timestamp]_"
         }
       ]
     }
