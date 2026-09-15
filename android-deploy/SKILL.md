@@ -135,7 +135,7 @@ gdrive.list_files(folder_id: "<FOLDER_ID_FOR_FLAVOR>")
 
 ### Step 2 — Bump versionCode in `app/build.gradle.kts`
 
-1. Open [`app/build.gradle.kts`](file:///Users/tapangohil/StudioProjects/payg-android/app/build.gradle.kts).
+1. Open `app/build.gradle.kts`.
 2. Locate the correct `productFlavors` block for the **product** part of the flavor:
    - `opark` block for any `opark*` flavor
    - `vpark` block for any `vpark*` / `vPark*` flavor

@@ -104,6 +104,7 @@ def main():
     parser.add_argument("--duration", help="Duration of entry e.g. '2.5h', '30m' (for single entry mode)")
     parser.add_argument("--team-id", help="ClickUp Team ID/Workspace ID")
     parser.add_argument("--json", help="JSON string containing multiple entries")
+    parser.add_argument("--file", help="Path to JSON file containing entries")
     
     args = parser.parse_args()
     
@@ -141,8 +142,24 @@ def main():
     
     entries = []
     
-    # Prioritize --json argument first
-    if args.json:
+    # Prioritize --file first, then --json
+    if args.file:
+        try:
+            with open(args.file, "r") as f:
+                payload = json.load(f)
+            if isinstance(payload, dict):
+                if "date" in payload and not args.date:
+                    parts = list(map(int, payload["date"].split('-')))
+                    target_date = datetime.date(parts[0], parts[1], parts[2])
+                    start_dt = datetime.datetime(target_date.year, target_date.month, target_date.day, 9, 0, 0, tzinfo=tz_ist)
+                    start_ms = int(start_dt.timestamp() * 1000)
+                entries = payload.get("entries", [])
+            elif isinstance(payload, list):
+                entries = payload
+        except Exception as e:
+            print(f"Error loading JSON file: {e}", file=sys.stderr)
+            sys.exit(1)
+    elif args.json:
         try:
             payload = json.loads(args.json)
             if isinstance(payload, dict):

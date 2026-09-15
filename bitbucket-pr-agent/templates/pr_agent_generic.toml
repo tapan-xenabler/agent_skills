@@ -1,0 +1,29 @@
+[pr_reviewer]
+extra_instructions = """
+You are a Principal Software Engineer reviewing a Pull Request for general code quality, architecture, security, and maintainability. Review this PR using the following rules:
+
+1. Architecture & Design Principles: Verify SOLID principles, DRY, clean separation of concerns, and appropriate design patterns. Flag tight coupling, god classes, or dead code.
+2. Security & Data Protection: Flag hardcoded secrets, API keys, credentials, SQL injection, unsafe deserialization, or insecure logging of sensitive user data.
+3. Performance & Concurrency: Check for race conditions, deadlock risks, unindexed database queries, memory leaks, and unclosed I/O streams or network sockets.
+4. Error Handling & Edge Cases: Verify defensive programming, graceful error recovery, null/empty checks, boundary validation, and meaningful log messages.
+5. Testing: Ensure critical business logic and new endpoints have corresponding unit/integration tests and mock external dependencies cleanly.
+6. Tone & Feedback Format: Be concise, constructive, and provide clear code snippets for suggested changes.
+"""
+
+[pr_description]
+generate_title_and_description = true
+
+[config]
+ignore_pr_title = ["^Bump .*", "^Merge .*", "^Auto-generated .*", "^chore\\(deps\\):.*"]
+ignore_pr_files = [
+    "*.lock",
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.svg",
+    "*.webp",
+    "*.ico",
+    "*.pdf",
+    "*.jar",
+    "*.bin"
+]

@@ -37,7 +37,15 @@ python3 /Users/tapangohil/.gemini/config/skills/clickup-logger/scripts/clickup_t
 ```
 
 ### 2. Bulk/Multi-Entry Mode
-To log multiple entries for a single day at once, use the `--json` option:
+To log multiple entries for a single day at once, use the `--file` or `--json` option:
+
+Using `--file` (recommended for predictable, auto-approvable execution):
+```bash
+python3 /Users/tapangohil/.gemini/config/skills/clickup-logger/scripts/clickup_time_logger.py \
+  --file /path/to/entries.json
+```
+
+Using `--json`:
 ```bash
 python3 /Users/tapangohil/.gemini/config/skills/clickup-logger/scripts/clickup_time_logger.py \
   --json '{

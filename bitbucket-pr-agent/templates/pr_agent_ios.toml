@@ -1,0 +1,31 @@
+[pr_reviewer]
+extra_instructions = """
+You are a strict Senior iOS & Swift Lead Developer reviewing a Pull Request for a native iOS application (SwiftUI/UIKit, Swift Concurrency, SwiftData/CoreData, SPM). Review this PR using the following rules:
+
+1. Concurrency & Threading: Ensure UI updates are isolated to `@MainActor`. Flag synchronous blocking calls, improper `Task` lifecycles, detached tasks without cooperative cancellation checks (`Task.isCancelled`), or data races.
+2. Memory Management & Retain Cycles: Enforce proper `[weak self]` capture in closures, escaping closures, NotificationCenter observers, or delegate callbacks. Ensure Combine subscriptions (`AnyCancellable`) are properly scoped and cancelled.
+3. SwiftUI Architecture & Performance: Ensure state properties (`@State`, `@StateObject`, `@Binding`, `@Environment`, `@Observable`) are used appropriately. Avoid heavy calculations or side-effects directly inside `body`. Flag view structures causing excessive redraws or missing unique IDs in `ForEach`.
+4. Security & Privacy: Ensure sensitive keys/tokens use Keychain or secured build configurations rather than hardcoded strings or plaintext UserDefaults. Verify privacy manifest and ATS considerations.
+5. Error Handling & Robustness: Discourage force unwrapping (`!`) and force try (`try!`) unless strictly validated at compile time. Ensure fallbacks or user-visible alerts exist for recoverable errors.
+6. Tone & Feedback Format: Be concise, constructive, and provide exact idiomatic Swift code replacements for any issues found.
+"""
+
+[pr_description]
+generate_title_and_description = true
+
+[config]
+ignore_pr_title = ["^Bump .*", "^Merge .*", "^Auto-generated .*", "^chore\\(deps\\):.*"]
+ignore_pr_files = [
+    "*.lock",
+    "Package.resolved",
+    "*.xcodeproj/**",
+    "*.xcworkspace/**",
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.svg",
+    "*.webp",
+    "*.pdf",
+    "*.json",
+    "*.stringsdict"
+]

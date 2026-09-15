@@ -1,0 +1,30 @@
+image: python:3.10
+
+pipelines:
+  pull-requests:
+    '**': 
+      - step:
+          name: 🤖 Gemini PR Review (Qodo PR-Agent)
+          services:
+            - docker
+          script:
+            # Only run PR review when targeting specific primary branches (e.g., main, develop) to save API quota
+            - |
+              if [[ "$BITBUCKET_PR_DESTINATION_BRANCH" != "main" && "$BITBUCKET_PR_DESTINATION_BRANCH" != "develop" ]]; then
+                echo "Skipping AI review. PR is not targeting main or develop."
+                exit 0
+              fi
+            
+            # Pull official Qodo PR-Agent docker image
+            - docker pull pragent/pr-agent:latest
+            
+            # Run PR review using Google Gemini via Google AI Studio
+            - >
+              docker run 
+              -e GOOGLE_AI_STUDIO.GEMINI_API_KEY=$GEMINI_API_KEY 
+              -e BITBUCKET.BEARER_TOKEN=$BITBUCKET_BEARER_TOKEN 
+              -e CONFIG.GIT_PROVIDER="bitbucket" 
+              -e CONFIG.MODEL="gemini/gemini-3.5-flash"
+              -e CONFIG.FALLBACK_MODELS="gemini/gemini-2.5-pro"
+              -e CONFIG.CUSTOM_MODEL_MAX_TOKENS=1048576
+              pragent/pr-agent:latest --pr_url=https://bitbucket.org/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pull-requests/$BITBUCKET_PR_ID review
