@@ -105,39 +105,59 @@ Check if `bitbucket-pipelines.yml` already exists:
 
 #### Pipeline Configuration:
 ```yaml
-image: python:3.10
-
 pipelines:
   pull-requests:
     '**': 
       - step:
           name: 🤖 Gemini PR Review (Qodo PR-Agent)
+          image: docker:latest
+          caches:
+            - docker
           services:
             - docker
           script:
             # 1. Only run PR review when targeting specific branches (cost-saving)
             - |
-              if [[ "$BITBUCKET_PR_DESTINATION_BRANCH" != "main" && "$BITBUCKET_PR_DESTINATION_BRANCH" != "develop" ]]; then
-                echo "Skipping AI review. PR is not targeting main or develop."
+              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" != "main" ] && [ "$BITBUCKET_PR_DESTINATION_BRANCH" != "develop" ] && [ "$BITBUCKET_PR_DESTINATION_BRANCH" != "master" ]; then
+                echo "Skipping AI review. PR is not targeting main, develop, or master."
                 exit 0
               fi
             
-            # 2. Pull the official open-source PR-Agent image
+            # 2. Pull the official open-source PR-Agent image (cached)
             - docker pull pragent/pr-agent:latest
             
-            # 3. Run PR-Agent natively using Gemini via Google AI Studio
-            - >
-              docker run 
-              -e GOOGLE_AI_STUDIO.GEMINI_API_KEY=$GEMINI_API_KEY 
-              -e BITBUCKET.BEARER_TOKEN=$BITBUCKET_BEARER_TOKEN 
-              -e CONFIG.GIT_PROVIDER="bitbucket" 
-              -e CONFIG.MODEL="gemini/gemini-3.5-flash"
-              -e CONFIG.FALLBACK_MODELS="gemini/gemini-2.5-pro"
-              -e CONFIG.CUSTOM_MODEL_MAX_TOKENS=1048576
-              pragent/pr-agent:latest --pr_url=https://bitbucket.org/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pull-requests/$BITBUCKET_PR_ID review
+            # 3. Run PR-Agent natively using Gemini via Google AI Studio with retry logic
+            - |
+              MAX_RETRIES=3
+              RETRY_DELAY=120
+              for i in $(seq 1 $MAX_RETRIES); do
+                echo "Attempt $i/$MAX_RETRIES to run PR-Agent..."
+                if docker run --rm \
+                  -v "$(pwd)/.pr_agent.toml:/app/.pr_agent.toml" \
+                  -e GOOGLE_AI_STUDIO.GEMINI_API_KEY="$GEMINI_API_KEY" \
+                  -e BITBUCKET.BEARER_TOKEN="$BITBUCKET_BEARER_TOKEN" \
+                  -e CONFIG.GIT_PROVIDER="bitbucket" \
+                  -e CONFIG.MODEL="gemini/gemini-2.5-flash" \
+                  -e CONFIG.FALLBACK_MODELS="gemini/gemini-2.5-pro" \
+                  -e CONFIG.CUSTOM_MODEL_MAX_TOKENS=1048576 \
+                  pragent/pr-agent:latest --pr_url="https://bitbucket.org/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pull-requests/$BITBUCKET_PR_ID" review; then
+                  echo "PR review completed successfully."
+                  exit 0
+                else
+                  EXIT_CODE=$?
+                  echo "PR-Agent failed with exit code $EXIT_CODE."
+                  if [ $i -lt $MAX_RETRIES ]; then
+                    echo "Waiting $RETRY_DELAY seconds before retrying..."
+                    sleep $RETRY_DELAY
+                  else
+                    echo "Max retries reached. Failing the pipeline."
+                    exit $EXIT_CODE
+                  fi
+                fi
+              done
 ```
 
-> **Note on Branch Filtering**: Adjust `"main"` and `"develop"` in the script if the repository uses different main branches (e.g. `"master"`, `"release/*"`, etc.).
+> **Note on Branch Filtering**: Adjust `"main"`, `"develop"`, and `"master"` in the script if the repository uses different main branches (e.g. `"release/*"`, etc.).
 
 ---
 
